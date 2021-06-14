@@ -1,0 +1,9 @@
+[package]
+name = "ggst-bbs-unpacker"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+anyhow = "1"
+byteorder = "1"
+clap = "3.0.0-beta.2"
