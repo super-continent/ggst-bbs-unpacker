@@ -1,3 +1,6 @@
+#[cfg(feature = "gui")]
+mod app;
+
 use std::{
     fs::File,
     io::{Cursor, Read, Seek, SeekFrom, Write},
@@ -41,12 +44,14 @@ enum Args {
     },
 }
 
+#[cfg(not(feature = "gui"))]
 fn main() {
     if let Err(e) = run() {
         println!("ERROR: {}", e);
     }
 }
 
+#[cfg(not(feature = "gui"))]
 fn run() -> AResult<()> {
     let args = Args::parse();
 
@@ -65,6 +70,16 @@ fn run() -> AResult<()> {
     }?;
 
     Ok(())
+}
+
+#[cfg(feature = "gui")]
+fn main() {
+use eframe::egui::Vec2;
+
+    let app = app::App::default();
+    let mut native_options = eframe::NativeOptions::default();
+    native_options.initial_window_size = Some(Vec2::new(400.0, 500.0));
+    eframe::run_native(Box::new(app), native_options);
 }
 
 fn extract_file(uexp: PathBuf, output: PathBuf, overwrite: bool) -> AResult<()> {
