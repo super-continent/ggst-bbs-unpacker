@@ -1,3 +1,4 @@
+#![cfg_attr(feature = "gui", windows_subsystem = "windows")]
 #[cfg(feature = "gui")]
 mod app;
 
@@ -12,6 +13,7 @@ use byteorder::{ReadBytesExt, WriteBytesExt, LE};
 use clap::{AppSettings, Clap};
 
 /// Extract and reinject bbscript from the uexp and uasset files in strive
+#[cfg(not(feature = "gui"))]
 #[derive(Clap)]
 #[clap(author = "Made by Pangaea")]
 #[clap(setting = AppSettings::ColoredHelp)]
@@ -78,11 +80,11 @@ use eframe::egui::Vec2;
 
     let app = app::App::default();
     let mut native_options = eframe::NativeOptions::default();
-    native_options.initial_window_size = Some(Vec2::new(400.0, 500.0));
+    native_options.initial_window_size = Some(Vec2::new(400.0, 150.0));
     eframe::run_native(Box::new(app), native_options);
 }
 
-fn extract_file(uexp: PathBuf, output: PathBuf, overwrite: bool) -> AResult<()> {
+pub fn extract_file(uexp: PathBuf, output: PathBuf, overwrite: bool) -> AResult<()> {
     if output.exists() && !overwrite {
         return Err(anyhow::anyhow!(
             "Output file already exists! Specify -o to overwrite"
@@ -106,7 +108,7 @@ fn extract_file(uexp: PathBuf, output: PathBuf, overwrite: bool) -> AResult<()> 
 const UEXP_SIZE_OFFSET: usize = 0x24;
 const UEXP_FILE_START: usize = 0x34;
 
-fn inject_file(file: PathBuf, uexp: PathBuf, uasset: PathBuf, force: bool) -> AResult<()> {
+pub fn inject_file(inject: PathBuf, uexp: PathBuf, uasset: PathBuf, force: bool) -> AResult<()> {
 
     let uexp_path = uexp.clone();
     let uasset_path = uasset.clone();
@@ -127,7 +129,7 @@ fn inject_file(file: PathBuf, uexp: PathBuf, uasset: PathBuf, force: bool) -> AR
         return Err(anyhow::anyhow!("Filenames do not have correct extensions! Did you enter the UEXP and UASSET in the correct order?"));
     }
 
-    let mut file = File::open(file)?;
+    let mut file = File::open(inject)?;
     let mut uexp = File::open(uexp)?;
     let mut uasset = File::open(uasset)?;
 
